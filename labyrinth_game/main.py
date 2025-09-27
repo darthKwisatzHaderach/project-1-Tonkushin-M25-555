@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-from constants import ROOMS
+from labyrinth_game.player_actions import get_input
+from labyrinth_game.utils import describe_current_room
 
 game_state = {
     'player_inventory': [],  # Инвентарь игрока
@@ -9,7 +10,11 @@ game_state = {
 }
 
 def main():
-    print("Первая попытка запустить проект!")
+    print('Добро пожаловать в Лабиринт сокровищ!')
+    result = ''
+    describe_current_room(game_state)
+    while result != 'quit':
+        get_input()
 
 if __name__ == "__main__":
     main()
