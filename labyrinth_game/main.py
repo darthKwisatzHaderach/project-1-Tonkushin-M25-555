@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from labyrinth_game.player_actions import get_input, take_item, move_player
+from labyrinth_game.player_actions import get_input, move_player, take_item
 from labyrinth_game.utils import describe_current_room
 
 game_state = {
