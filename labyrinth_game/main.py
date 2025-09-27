@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from labyrinth_game.player_actions import get_input
+from labyrinth_game.player_actions import get_input, take_item, move_player
 from labyrinth_game.utils import describe_current_room
 
 game_state = {
@@ -9,12 +9,39 @@ game_state = {
     'steps_taken': 0  # Количество шагов
 }
 
+
 def main():
     print('Добро пожаловать в Лабиринт сокровищ!')
     result = ''
     describe_current_room(game_state)
+
     while result != 'quit':
-        get_input()
+        result = process_command(game_state, get_input())
+
+
+def process_command(game_state, command):
+    parts = command.lower().split()
+    if not parts:
+        return None
+
+    command_name = parts[0]
+    args = parts[1:]
+
+    match command_name:
+        case 'look':
+            describe_current_room(game_state)
+        case 'use':
+            raise NotImplementedError
+        case 'go':
+            move_player(game_state, args)
+        case 'take':
+            take_item(game_state, args)
+        case 'inventory':
+            print(f"{game_state['player_inventory']}")
+        case 'quit':
+            return 'quit'
+    return None
+
 
 if __name__ == "__main__":
     main()
