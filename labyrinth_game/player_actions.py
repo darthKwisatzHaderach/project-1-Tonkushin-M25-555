@@ -1,4 +1,5 @@
 from labyrinth_game.constants import ROOMS
+from labyrinth_game.utils import attempt_open_treasure
 
 
 def show_inventory(game_state):
@@ -8,21 +9,27 @@ def show_inventory(game_state):
             print(item)
 
 
-def get_input(prompt="> "):
+def get_input(game_state, prompt="> "):
     try:
-        return NotImplementedError
+        return input().strip()
     except (KeyboardInterrupt, EOFError):
         print('\nВыход из игры.')
-        return 'quit'
+        game_state['game_over'] = True
 
 
 def move_player(game_state, direction):
+    print('move_player method')
     current_room = game_state['current_room']
+    print(f'current_room: {current_room}')
     current_room_stats = ROOMS[current_room]
+    print(f'current_room_stats: {current_room_stats}')
+    print(f"current_room_stats['exits']: {current_room_stats['exits']}")
 
     if direction in current_room_stats['exits']:
         new_room = current_room_stats['exits'][direction]
+        print(f'new_room: {new_room}')
         game_state['current_room'] = new_room
+        print(f"game_state['current_room']: {game_state['current_room']}")
         game_state['steps_taken'] += 1
         return True
     else:
@@ -35,8 +42,8 @@ def take_item(game_state, item_name):
     current_room_stats = ROOMS[current_room]
 
     if item_name in current_room_stats['items']:
-        game_state['player_inventory'] += item_name
-        current_room_stats['items'] -= item_name
+        game_state['player_inventory'].append(item_name)
+        current_room_stats['items'].remove(item_name)
         print(f'Вы подняли: {item_name}')
         return True
     else:
@@ -57,6 +64,8 @@ def use_item(game_state, item_name):
             print('Вы открываете шкатулку')
             if 'rusty_key' not in game_state['player_inventory']:
                 print('Получен ржавый ключ')
-                game_state['player_inventory'] += 'rusty_key'
+                game_state['player_inventory'].append('rusty_key')
+        case 'rusty_key':
+            attempt_open_treasure(game_state)
         case _:
             print('Вы не знаете как использовать этот предмет')

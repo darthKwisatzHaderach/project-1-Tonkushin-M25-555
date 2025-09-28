@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-from labyrinth_game.player_actions import get_input, move_player, take_item
-from labyrinth_game.utils import describe_current_room
+from labyrinth_game.player_actions import get_input, move_player, take_item, use_item
+from labyrinth_game.utils import describe_current_room, show_help
 
 game_state = {
     'player_inventory': [],  # Инвентарь игрока
@@ -12,11 +12,10 @@ game_state = {
 
 def main():
     print('Добро пожаловать в Лабиринт сокровищ!')
-    result = ''
-    describe_current_room(game_state)
 
-    while result != 'quit':
-        result = process_command(game_state, get_input())
+    while game_state['game_over'] is not True:
+        describe_current_room(game_state)
+        process_command(game_state, get_input(game_state))
 
 
 def process_command(game_state, command):
@@ -31,13 +30,15 @@ def process_command(game_state, command):
         case 'look':
             describe_current_room(game_state)
         case 'use':
-            raise NotImplementedError
+            use_item(game_state, args[0])
         case 'go':
-            move_player(game_state, args)
+            move_player(game_state, args[0])
         case 'take':
-            take_item(game_state, args)
+            take_item(game_state, args[0])
         case 'inventory':
             print(f"{game_state['player_inventory']}")
+        case 'help':
+            show_help()
         case 'quit':
             return 'quit'
     return None
