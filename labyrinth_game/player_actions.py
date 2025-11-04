@@ -1,5 +1,5 @@
-from .constants import ROOMS
-from .utils import describe_current_room, random_event
+from constants import ROOMS
+from utils import describe_current_room, random_event
 
 
 def get_input(prompt: str = "> ") -> str:

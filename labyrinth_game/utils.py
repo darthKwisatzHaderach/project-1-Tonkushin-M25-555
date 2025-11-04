@@ -1,6 +1,6 @@
 import math
 
-from .constants import (
+from constants import (
     EVENT_PROBABILITY,
     RANDOM_EVENT_KINDS,
     ROOMS,
