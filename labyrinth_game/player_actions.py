@@ -1,5 +1,5 @@
-from constants import ROOMS
-from utils import describe_current_room, random_event
+from .constants import ROOMS
+from .utils import describe_current_room, random_event
 
 
 def get_input(prompt: str = "> ") -> str:
@@ -13,11 +13,13 @@ def get_input(prompt: str = "> ") -> str:
 
 def show_inventory(game_state: dict) -> None:
     """Печатает содержимое инвентаря или сообщение об отсутствии предметов."""
-    inv = game_state['player_inventory']
-    if inv:
-        print("Инвентарь:", ", ".join(inv))
+    inventory = game_state['player_inventory']
+    if not inventory:
+        print("Ваш инвентарь пуст.")
     else:
-        print("Инвентарь пуст.")
+        print("В вашем инвентаре:")
+        for item in inventory:
+            print(f"- {item}")
 
 
 def move_player(game_state: dict, direction: str) -> None:
@@ -72,5 +74,3 @@ def use_item(game_state: dict, item_name: str) -> None:
                 print("В шкатулке пусто.")
         case _:
             print("Вы не знаете, как использовать этот предмет.")
-
-

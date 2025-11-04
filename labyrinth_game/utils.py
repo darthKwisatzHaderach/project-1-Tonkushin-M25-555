@@ -1,10 +1,11 @@
 import math
 
-from constants import (
+from .constants import (
     EVENT_PROBABILITY,
     RANDOM_EVENT_KINDS,
     ROOMS,
     TRAP_DEATH_THRESHOLD,
+    TRAP_ROLL_MODULO,
 )
 
 
@@ -45,7 +46,7 @@ def trigger_trap(game_state: dict) -> None:
         lost = inv.pop(idx)
         print(f"Вы потеряли предмет: {lost}")
     else:
-        roll = pseudo_random(game_state['steps_taken'], 10)
+        roll = pseudo_random(game_state['steps_taken'], TRAP_ROLL_MODULO)
         if roll < TRAP_DEATH_THRESHOLD:
             print("Вы сорвались в пропасть. Игра окончена.")
             game_state['game_over'] = True
@@ -68,15 +69,17 @@ def random_event(game_state: dict) -> None:
         if 'sword' in game_state['player_inventory']:
             print("Вы поднимаете меч — существо отступает.")
     else:
-        if (game_state['current_room'] == 'trap_room'
-                and 'torch' not in game_state['player_inventory']):
+        room_name = game_state['current_room']
+        has_torch = 'torch' not in game_state['player_inventory']
+        if room_name == 'trap_room' and has_torch:
             print("Темно и опасно... Кажется, впереди ловушка.")
             trigger_trap(game_state)
 
 
 def solve_puzzle(game_state: dict) -> None:
-    """Решение загадки текущей комнаты; награды зависят от комнаты,
-    ошибки — ловушка в trap_room."""
+    """Решение загадки текущей комнаты; награды зависят от комнаты."""
+    from .player_actions import get_input
+
     room_key = game_state['current_room']
     room = ROOMS[room_key]
     puzzle = room.get('puzzle')
@@ -85,7 +88,7 @@ def solve_puzzle(game_state: dict) -> None:
         return
     question, answer = puzzle
     print(question)
-    user = input("Ваш ответ: ").strip().lower()
+    user = get_input("Ваш ответ: ").strip().lower()
     normalized_answer = str(answer).strip().lower()
     alt = {"10": {"10", "десять"}}
     valid_answers = alt.get(normalized_answer, {normalized_answer})
@@ -107,6 +110,8 @@ def solve_puzzle(game_state: dict) -> None:
 
 
 def attempt_open_treasure(game_state: dict) -> None:
+    from .player_actions import get_input  # noqa: E501
+
     room_key = game_state['current_room']
     if room_key != 'treasure_room':
         print("Здесь нечего открывать.")
@@ -125,13 +130,16 @@ def attempt_open_treasure(game_state: dict) -> None:
     if not puzzle:
         print("Кодов здесь нет.")
         return
-    print("Сундук заперт. Кажется, его можно открыть кодом. Ввести код? (да/нет)")
-    choice = input("> ").strip().lower()
+    print(
+        "Сундук заперт. Кажется, его можно открыть кодом. "
+        "Ввести код? (да/нет)"
+    )
+    choice = get_input("> ").strip().lower()
     if choice != "да":
         print("Вы отступаете от сундука.")
         return
     _, answer = puzzle
-    code = input("Введите код: ").strip()
+    code = get_input("Введите код: ").strip()
     if code == str(answer):
         print("Код верный! Сундук открыт!")
         room['items'].remove('treasure_chest')
@@ -139,5 +147,3 @@ def attempt_open_treasure(game_state: dict) -> None:
         game_state['game_over'] = True
     else:
         print("Неверный код.")
-
-
