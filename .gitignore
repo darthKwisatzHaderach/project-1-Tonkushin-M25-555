@@ -1,3 +1,6 @@
 .idea
-.venv
-dist
+.venv/
+dist/
+__pycache__/
+*.pyc
+.DS_Store

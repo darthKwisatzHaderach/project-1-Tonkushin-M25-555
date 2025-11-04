@@ -1,8 +1,18 @@
-from labyrinth_game.constants import ROOMS
-from labyrinth_game.utils import describe_current_room, random_event
+from .constants import ROOMS
+from .utils import describe_current_room, random_event
+
+
+def get_input(prompt: str = "> ") -> str:
+    """Безопасное чтение ввода. На Ctrl+C/EOF возвращает 'quit'."""
+    try:
+        return input(prompt)
+    except (KeyboardInterrupt, EOFError):
+        print("\nВыход из игры.")
+        return "quit"
 
 
 def show_inventory(game_state: dict) -> None:
+    """Печатает содержимое инвентаря или сообщение об отсутствии предметов."""
     inv = game_state['player_inventory']
     if inv:
         print("Инвентарь:", ", ".join(inv))
@@ -10,14 +20,8 @@ def show_inventory(game_state: dict) -> None:
         print("Инвентарь пуст.")
 
 
-def get_input(prompt="> "):
-    try:
-        return input(prompt)
-    except (KeyboardInterrupt, EOFError):
-        print("\nВыход из игры.")
-        return "quit"
-
-def move_player(game_state, direction):
+def move_player(game_state: dict, direction: str) -> None:
+    """Перемещение по направлению: проверка выхода, ключа в treasure_room, события."""
     current = game_state['current_room']
     exits = ROOMS[current]['exits']
     if direction not in exits:
@@ -34,7 +38,9 @@ def move_player(game_state, direction):
     describe_current_room(game_state)
     random_event(game_state)
 
-def take_item(game_state, item_name):
+
+def take_item(game_state: dict, item_name: str) -> None:
+    """Поднять предмет из комнаты в инвентарь (сундук слишком тяжел)."""
     room = ROOMS[game_state['current_room']]
     if item_name == 'treasure_chest':
         print("Вы не можете поднять сундук, он слишком тяжелый.")
@@ -47,7 +53,8 @@ def take_item(game_state, item_name):
         print("Такого предмета здесь нет.")
 
 
-def use_item(game_state, item_name):
+def use_item(game_state: dict, item_name: str) -> None:
+    """Использование предметов с простыми эффектами (факел, меч, шкатулка)."""
     inv = game_state['player_inventory']
     if item_name not in inv:
         print("У вас нет такого предмета.")
@@ -65,3 +72,5 @@ def use_item(game_state, item_name):
                 print("В шкатулке пусто.")
         case _:
             print("Вы не знаете, как использовать этот предмет.")
+
+
