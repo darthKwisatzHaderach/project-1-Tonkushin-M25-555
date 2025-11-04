@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-from labyrinth_game.player_actions import get_input, move_player, take_item, use_item
+from labyrinth_game.constants import COMMANDS
+from labyrinth_game.player_actions import get_input, move_player, take_item, use_item, show_inventory
 from labyrinth_game.utils import (
     attempt_open_treasure,
     describe_current_room,
@@ -24,42 +25,41 @@ def main():
         'steps_taken': 0,
     }
     describe_current_room(game_state)
-    show_help()
+    show_help(COMMANDS)
     while not game_state['game_over']:
         command_line = get_input("> ")
         process_command(game_state, command_line)
 
 
-def process_command(game_state, command):
-    parts = command.lower().split()
+def process_command(game_state: dict, command_line: str) -> None:
+    parts = command_line.strip().split()
     if not parts:
-        return None
+        return
+    cmd = parts[0].lower()
+    arg = " ".join(parts[1:]) if len(parts) > 1 else ""
 
-    command_name = parts[0]
-    args = parts[1:]
-
-    match command_name:
+    match cmd:
         case 'help':
-            show_help()
+            show_help(COMMANDS)
         case 'look':
             describe_current_room(game_state)
         case 'inventory':
-            print(f"{game_state['player_inventory']}")
+            show_inventory(game_state)
         case 'go':
-            if not args:
+            if not arg:
                 print("Укажите направление: north/south/east/west")
             else:
-                move_player(game_state, args[0].lower())
+                move_player(game_state, arg.lower())
         case 'take':
-            if not args:
+            if not arg:
                 print("Укажите предмет, который хотите взять.")
             else:
-                take_item(game_state, args[0])
+                take_item(game_state, arg)
         case 'use':
-            if not args:
+            if not arg:
                 print("Укажите предмет, который хотите использовать.")
             else:
-                use_item(game_state, args[0])
+                use_item(game_state, arg)
         case 'solve':
             if game_state['current_room'] == 'treasure_room':
                 attempt_open_treasure(game_state)
@@ -67,9 +67,10 @@ def process_command(game_state, command):
                 solve_puzzle(game_state)
         case 'quit' | 'exit':
             game_state['game_over'] = True
+        case 'north' | 'south' | 'east' | 'west':
+            move_player(game_state, cmd)
         case _:
             print("Неизвестная команда. Введите 'help' для помощи.")
-    return None
 
 
 if __name__ == "__main__":

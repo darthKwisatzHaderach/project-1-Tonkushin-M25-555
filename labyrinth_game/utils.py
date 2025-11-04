@@ -1,4 +1,53 @@
+import math
+
 from labyrinth_game.constants import ROOMS
+
+
+def show_help(commands: dict):
+    print("\nДоступные команды:")
+    for cmd, desc in commands.items():
+        print(f"  {cmd:<16} - {desc}")
+
+
+def pseudo_random(seed: int, modulo: int):
+    x = math.sin(seed * 12.9898) * 43758.5453
+    frac = x - math.floor(x)
+    return int(frac * modulo)
+
+
+def trigger_trap(game_state: dict):
+    print("Ловушка активирована! Пол стал дрожать...")
+    inv = game_state['player_inventory']
+    if inv:
+        idx = pseudo_random(game_state['steps_taken'] + len(inv), len(inv))
+        lost = inv.pop(idx)
+        print(f"Вы потеряли предмет: {lost}")
+    else:
+        roll = pseudo_random(game_state['steps_taken'], 10)
+        if roll < 3:
+            print("Вы сорвались в пропасть. Игра окончена.")
+            game_state['game_over'] = True
+        else:
+            print("Вы едва удержались и уцелели.")
+
+
+def random_event(game_state: dict):
+    if pseudo_random(game_state['steps_taken'], 10) != 0:
+        return
+    kind = pseudo_random(game_state['steps_taken'] + 1, 3)
+    room = ROOMS[game_state['current_room']]
+    if kind == 0:
+        print("На полу блестит монетка. Вы замечаете 'coin'.")
+        if 'coin' not in room['items']:
+            room['items'].append('coin')
+    elif kind == 1:
+        print("Где-то рядом слышен шорох...")
+        if 'sword' in game_state['player_inventory']:
+            print("Вы поднимаете меч — существо отступает.")
+    else:
+        if game_state['current_room'] == 'trap_room' and 'torch' not in game_state['player_inventory']:
+            print("Темно и опасно... Кажется, впереди ловушка.")
+            trigger_trap(game_state)
 
 
 def describe_current_room(game_state):
@@ -23,14 +72,24 @@ def solve_puzzle(game_state):
     question, answer = puzzle
     print(question)
     user = input("Ваш ответ: ").strip().lower()
-    if user == str(answer).strip().lower():
+    normalized_answer = str(answer).strip().lower()
+    alt = {"10": {"10", "десять"}}
+    valid_answers = alt.get(normalized_answer, {normalized_answer})
+    if user in valid_answers:
         print("Верно! Вы решили загадку.")
         room['puzzle'] = None
-        if 'treasure_key' not in game_state['player_inventory']:
-            game_state['player_inventory'].append('treasure_key')
-            print("Вы получили: treasure_key")
+        reward = None
+        if room_key == 'hall':
+            reward = 'treasure_key'
+        elif room_key == 'library':
+            reward = 'coin'
+        if reward and reward not in game_state['player_inventory']:
+            game_state['player_inventory'].append(reward)
+            print(f"Вы получили: {reward}")
     else:
         print("Неверно. Попробуйте снова.")
+        if room_key == 'trap_room':
+            trigger_trap(game_state)
 
 def attempt_open_treasure(game_state):
     room_key = game_state['current_room']
@@ -66,14 +125,3 @@ def attempt_open_treasure(game_state):
     else:
         print("Неверный код.")
 
-# labyrinth_game/utils.py
-def show_help():
-    print("\nДоступные команды:")
-    print("  go <direction>  - перейти в направлении (north/south/east/west)")
-    print("  look            - осмотреть текущую комнату")
-    print("  take <item>     - поднять предмет")
-    print("  use <item>      - использовать предмет из инвентаря")
-    print("  inventory       - показать инвентарь")
-    print("  solve           - попытаться решить загадку в комнате")
-    print("  quit            - выйти из игры")
-    print("  help            - показать это сообщение")
