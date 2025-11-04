@@ -1,5 +1,11 @@
 import math
-from .constants import ROOMS, EVENT_PROBABILITY, RANDOM_EVENT_KINDS, TRAP_DEATH_THRESHOLD
+
+from .constants import (
+    EVENT_PROBABILITY,
+    RANDOM_EVENT_KINDS,
+    ROOMS,
+    TRAP_DEATH_THRESHOLD,
+)
 
 
 def show_help(commands: dict) -> None:
@@ -62,13 +68,15 @@ def random_event(game_state: dict) -> None:
         if 'sword' in game_state['player_inventory']:
             print("Вы поднимаете меч — существо отступает.")
     else:
-        if game_state['current_room'] == 'trap_room' and 'torch' not in game_state['player_inventory']:
+        if (game_state['current_room'] == 'trap_room'
+                and 'torch' not in game_state['player_inventory']):
             print("Темно и опасно... Кажется, впереди ловушка.")
             trigger_trap(game_state)
 
 
 def solve_puzzle(game_state: dict) -> None:
-    """Решение загадки текущей комнаты; награды зависят от комнаты, ошибки — ловушка в trap_room."""
+    """Решение загадки текущей комнаты; награды зависят от комнаты,
+    ошибки — ловушка в trap_room."""
     room_key = game_state['current_room']
     room = ROOMS[room_key]
     puzzle = room.get('puzzle')
