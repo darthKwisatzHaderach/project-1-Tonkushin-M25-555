@@ -6,11 +6,16 @@ from .utils import attempt_open_treasure, describe_current_room, show_help, solv
 
 def process_command(game_state: dict, command_line: str) -> None:
     """Разбирает введенную строку и исполняет соответствующую команду."""
-    parts = command_line.strip().split()
+    command_line = command_line.strip()
+    if not command_line:
+        return
+
+    parts = command_line.split()
     if not parts:
         return
-    cmd = parts[0].lower()
-    arg = " ".join(parts[1:]) if len(parts) > 1 else ""
+
+    cmd = parts[0].lower().strip()
+    arg = " ".join(parts[1:]).strip() if len(parts) > 1 else ""
 
     match cmd:
         case 'help':

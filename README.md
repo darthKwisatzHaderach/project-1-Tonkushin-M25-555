@@ -68,3 +68,6 @@ https://asciinema.org/a/REPLACE_WITH_YOUR_CAST
 - Poetry: 1.8.4+
 - Ruff: как dev-зависимость
 
+## Asciinema
+[![asciicast](https://asciinema.org/a/FlcvgU38xAa6nX96hAHVjpGcD.svg)](https://asciinema.org/a/FlcvgU38xAa6nX96hAHVjpGcD)
+link: https://asciinema.org/a/FlcvgU38xAa6nX96hAHVjpGcD
